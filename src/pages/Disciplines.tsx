@@ -21,6 +21,8 @@ import api, {
   TestByDiscipline,
 } from "../services/api";
 
+let TOKEN: string = '';
+
 function Disciplines() {
   const navigate = useNavigate();
   const { token } = useAuth();
@@ -201,6 +203,10 @@ function TeachersDisciplines({
   );
 }
 
+async function handleClick(testId: number) {
+  await api.incrementViews(TOKEN, testId);
+}
+
 interface TestsProps {
   testsWithTeachers: { tests: Test[]; teacherName: string }[];
   categoryId: number;
@@ -222,7 +228,8 @@ function Tests({
                 target="_blank"
                 underline="none"
                 color="inherit"
-              >{`${test.name} (${testsWithDisciplines.teacherName})`}</Link>
+                onClick={() => handleClick(test.id)}
+              >{`${test.name} (${testsWithDisciplines.teacherName}) (${test.views} visualizações)`}</Link>
             </Typography>
           ))
       )}

@@ -1,4 +1,4 @@
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
   AccordionDetails,
@@ -9,16 +9,18 @@ import {
   Link,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 import api, {
   Category,
   TeacherDisciplines,
   Test,
   TestByTeacher,
-} from "../services/api";
+} from '../services/api';
+
+let TOKEN: string = '';
 
 function Instructors() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ function Instructors() {
     async function loadPage() {
       if (!token) return;
 
+      TOKEN = token;
       const { data: testsData } = await api.getTestsByTeacher(token);
       setTeachersDisciplines(testsData.tests);
       const { data: categoriesData } = await api.getCategories(token);
@@ -43,37 +46,37 @@ function Instructors() {
   return (
     <>
       <TextField
-        sx={{ marginX: "auto", marginBottom: "25px", width: "450px" }}
-        label="Pesquise por pessoa instrutora"
+        sx={{ marginX: 'auto', marginBottom: '25px', width: '450px' }}
+        label='Pesquise por pessoa instrutora'
       />
-      <Divider sx={{ marginBottom: "35px" }} />
+      <Divider sx={{ marginBottom: '35px' }} />
       <Box
         sx={{
-          marginX: "auto",
-          width: "700px",
+          marginX: 'auto',
+          width: '700px',
         }}
       >
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
           }}
         >
           <Button
-            variant="outlined"
-            onClick={() => navigate("/app/disciplinas")}
+            variant='outlined'
+            onClick={() => navigate('/app/disciplinas')}
           >
             Disciplinas
           </Button>
           <Button
-            variant="contained"
-            onClick={() => navigate("/app/pessoas-instrutoras")}
+            variant='contained'
+            onClick={() => navigate('/app/pessoas-instrutoras')}
           >
             Pessoa Instrutora
           </Button>
-          <Button variant="outlined" onClick={() => navigate("/app/adicionar")}>
+          <Button variant='outlined' onClick={() => navigate('/app/adicionar')}>
             Adicionar
           </Button>
         </Box>
@@ -98,11 +101,11 @@ function TeachersDisciplinesAccordions({
   const teachers = getUniqueTeachers(teachersDisciplines);
 
   return (
-    <Box sx={{ marginTop: "50px" }}>
+    <Box sx={{ marginTop: '50px' }}>
       {teachers.map((teacher) => (
-        <Accordion sx={{ backgroundColor: "#FFF" }} key={teacher}>
+        <Accordion sx={{ backgroundColor: '#FFF' }} key={teacher}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight="bold">{teacher}</Typography>
+            <Typography fontWeight='bold'>{teacher}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             {categories
@@ -166,8 +169,8 @@ function Categories({
 }: CategoriesProps) {
   return (
     <>
-      <Box sx={{ marginBottom: "8px" }}>
-        <Typography fontWeight="bold">{category.name}</Typography>
+      <Box sx={{ marginBottom: '8px' }}>
+        <Typography fontWeight='bold'>{category.name}</Typography>
         {teachersDisciplines
           .filter(
             (teacherDiscipline) => teacherDiscipline.teacher.name === teacher
@@ -186,6 +189,10 @@ function Categories({
   );
 }
 
+async function handleClick(testId: number) {
+  await api.incrementViews(TOKEN, testId);
+}
+
 interface TestsProps {
   disciplineName: string;
   tests: Test[];
@@ -195,13 +202,14 @@ function Tests({ tests, disciplineName }: TestsProps) {
   return (
     <>
       {tests.map((test) => (
-        <Typography key={test.id} color="#878787">
+        <Typography key={test.id} color='#878787'>
           <Link
             href={test.pdfUrl}
-            target="_blank"
-            underline="none"
-            color="inherit"
-          >{`${test.name} (${disciplineName})`}</Link>
+            target='_blank'
+            underline='none'
+            color='inherit'
+            onClick={() => handleClick(test.id)}
+          >{`${test.name} (${disciplineName}) (${test.views} visualizações)`}</Link>
         </Typography>
       ))}
     </>
