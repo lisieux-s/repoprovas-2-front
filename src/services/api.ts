@@ -9,6 +9,14 @@ interface UserData {
   password: string;
 }
 
+interface TestData {
+  name: string
+  pdfUrl: string
+  categoryId: number
+  disciplineId: number
+  teacherId: number
+}
+
 function getConfig(token: string) {
   return {
     headers: {
@@ -113,6 +121,11 @@ async function incrementViews(token: string, id: number) {
   return baseAPI.get(`/test/view/${id}`, config)
 }
 
+async function createTest(token: string, testData: TestData) {
+  const config = getConfig(token);
+  return baseAPI.post('/tests/create', testData, config)
+}
+
 const api = {
   signUp,
   signIn,
@@ -122,7 +135,8 @@ const api = {
   getDisciplines,
   getTeachers,
   getTeachersByDiscipline,
-  incrementViews
+  incrementViews,
+  createTest
 };
 
 export default api;

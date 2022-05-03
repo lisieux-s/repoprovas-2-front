@@ -125,6 +125,24 @@ function Add() {
     loadTeachers()
   }, [formData.discipline]);
 
+  async function handleSubmit(e: any) {
+    if(!token) return;
+
+    e.preventDefault();
+    const testData = {
+      name: formData.name,
+      pdfUrl: formData.pdfUrl,
+      categoryId: formData.category.id,
+      disciplineId: formData.discipline.id,
+      teacherId: formData.teacher.id
+    }
+    await api.createTest(token, testData); 
+  }
+
+  function handleChange({ target }: any) {
+    setFormData({ ...formData, [target.name]: target.value })
+  }
+
   return (
     <>
       <Typography sx={styles.title} variant='h4' component='h1'>
@@ -170,8 +188,8 @@ function Add() {
           label='Título da prova'
           type='text'
           variant='outlined'
-          //onChange={handleInputChange}
-          //value={formData.email}
+          value={formData.name}
+          onChange={(e) => handleChange(e)}
         />
         <TextField 
           name='pdfUrl'
@@ -179,12 +197,17 @@ function Add() {
           label='PDF da prova'
           type='text'
           variant='outlined'
-          //onChange={handleInputChange}
-          //value={formData.email}
+          value={formData.pdfUrl}
+          onChange={(e) => handleChange(e)}
         />
         <CategoriesSelect categories={categories} />
         <DisciplinesSelect disciplines={disciplines} />
         {!formData.discipline.name ? '' : <TeachersSelect teachers={teachers} />}
+      
+      <Button
+        onClick={(e) => handleSubmit(e)}
+      >Enviar</Button>
+      
       </Box>
     </>
   );
@@ -248,7 +271,6 @@ function Add() {
       });
     }
 
-    //console.log(teachers)
     return (
       <Box sx={{ marginX: "auto", marginTop: "25px"}}>
         <FormControl fullWidth>

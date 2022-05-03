@@ -31,6 +31,7 @@ function Disciplines() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [disciplines, setDisciplines] = useState<Discipline[]>([])
   const [disciplinesList, setDisciplinesList]: any[] = useState([])
+  const [selectedDiscipline, setSelectedDiscipline]: any[] = useState([])
 
   useEffect(() => {
     async function loadPage() {
