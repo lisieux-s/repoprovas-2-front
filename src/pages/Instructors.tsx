@@ -9,12 +9,14 @@ import {
   Link,
   TextField,
   Typography,
+  Autocomplete
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import api, {
   Category,
+  Teacher,
   TeacherDisciplines,
   Test,
   TestByTeacher,
@@ -29,6 +31,8 @@ function Instructors() {
     TestByTeacher[]
   >([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([])
+  const [teachersList, setTeachersList]: any[] = useState([])
 
   useEffect(() => {
     async function loadPage() {
@@ -43,12 +47,38 @@ function Instructors() {
     loadPage();
   }, [token]);
 
+  useEffect(() => {
+    async function loadSearch() {
+      if (!token) return;
+
+      const { data: teachersData } = await api.getTeachers(token);
+      setTeachers(teachersData.teacher);
+
+    }
+    loadSearch()
+  }, [token])
+
+  useEffect(() => {
+    async function listTeachers() {
+      const list: any[] = []
+      if(!teachers) return;
+      teachers.map(teacher => {
+        list.push(teacher.name)
+      })
+      setTeachersList(list)
+    }
+    listTeachers();
+  }, [teachers])
+
   return (
     <>
-      <TextField
-        sx={{ marginX: 'auto', marginBottom: '25px', width: '450px' }}
-        label='Pesquise por pessoa instrutora'
-      />
+      <Autocomplete
+      sx={{ marginX: "auto", marginBottom: "25px", width: "450px" }}
+      disablePortal
+      id="disciplines-search"
+      options={teachersList}
+      renderInput={(params) => <TextField {...params} label="Pesquise por pessoa instrutura" />}
+    />
       <Divider sx={{ marginBottom: '35px' }} />
       <Box
         sx={{

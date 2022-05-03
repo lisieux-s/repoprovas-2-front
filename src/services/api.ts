@@ -98,9 +98,14 @@ async function getDisciplines(token: string) {
   return baseAPI.get<{ disciplines: Discipline[] }>("/disciplines", config);
 }
 
+async function getTeachers(token: string) {
+  const config = getConfig(token);
+  return baseAPI.get<{ teacher: Teacher[] }>(`/teachers`, config);
+}
+
 async function getTeachersByDiscipline(token: string, id: number) {
   const config = getConfig(token);
-  return baseAPI.get<{ teacher: Teacher[] }>(`/discipline/${id}/teacher`, config);
+  return baseAPI.get(`/discipline/${id}/teachers`, config);
 }
 
 async function incrementViews(token: string, id: number) {
@@ -115,6 +120,7 @@ const api = {
   getTestsByTeacher,
   getCategories,
   getDisciplines,
+  getTeachers,
   getTeachersByDiscipline,
   incrementViews
 };

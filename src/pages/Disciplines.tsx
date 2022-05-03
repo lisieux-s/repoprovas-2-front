@@ -9,6 +9,7 @@ import {
   Link,
   TextField,
   Typography,
+  Autocomplete
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +29,8 @@ function Disciplines() {
   const { token } = useAuth();
   const [terms, setTerms] = useState<TestByDiscipline[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([])
+  const [disciplinesList, setDisciplinesList]: any[] = useState([])
 
   useEffect(() => {
     async function loadPage() {
@@ -41,12 +44,40 @@ function Disciplines() {
     loadPage();
   }, [token]);
 
+  useEffect(() => {
+    async function loadSearch() {
+      if (!token) return;
+
+      const { data: disciplinesData } = await api.getDisciplines(token);
+      setDisciplines(disciplinesData.disciplines);
+
+    }
+    loadSearch()
+  }, [token])
+
+  useEffect(() => {
+    async function listDisciplines() {
+      const list: any[] = []
+      if(!disciplines) return;
+      disciplines.map(discipline => {
+        list.push(discipline.name)
+      })
+      setDisciplinesList(list)
+    }
+    listDisciplines();
+  }, [disciplines])
+
   return (
-    <>
-      <TextField
-        sx={{ marginX: "auto", marginBottom: "25px", width: "450px" }}
-        label="Pesquise por disciplina"
-      />
+    <>     
+      
+      <Autocomplete
+      sx={{ marginX: "auto", marginBottom: "25px", width: "450px" }}
+      disablePortal
+      id="disciplines-search"
+      options={disciplinesList}
+      renderInput={(params) => <TextField {...params} label="Pesquise por disciplina" />}
+    />
+      
       <Divider sx={{ marginBottom: "35px" }} />
       <Box
         sx={{

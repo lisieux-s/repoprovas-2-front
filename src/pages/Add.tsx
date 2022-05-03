@@ -11,6 +11,9 @@ import {
   Typography,
   Menu,
   MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -99,14 +102,10 @@ function Add() {
     async function loadPage() {
       if (!token) return;
 
-      //const { data: testsData } = await api.//falta um getTeachers
       const { data: categoriesData } = await api.getCategories(token);
-      console.log(categoriesData);
       setCategories(categoriesData.categories);
       const { data: disciplinesData } = await api.getDisciplines(token);
-      console.log(disciplinesData.disciplines);
       setDisciplines(disciplinesData.disciplines);
-      //setDisciplines(disciplinesData.disciplines);
     }
     loadPage();
   }, [token]);
@@ -114,14 +113,16 @@ function Add() {
   useEffect(() => {
     async function loadTeachers() {
       if (!token) return;
-      if (!disciplines) return;
+      if (!formData.discipline.name) return;
 
       const { data: teachersData } = await api.getTeachersByDiscipline(
         token,
         formData.discipline.id
       );
-      console.log(teachersData);
+      console.log(teachersData.teachers);
+      setTeachers(teachersData.teachers)
     }
+    loadTeachers()
   }, [formData.discipline]);
 
   return (
@@ -165,131 +166,159 @@ function Add() {
         </Box>
         <TextField
           name='name'
-          sx={styles.input}
+          sx={{ marginX: "auto", marginTop: "25px"}}
           label='Título da prova'
           type='text'
           variant='outlined'
           //onChange={handleInputChange}
           //value={formData.email}
         />
-        <TextField
+        <TextField 
           name='pdfUrl'
-          sx={styles.input}
+          sx={{ marginX: "auto", marginTop: "25px"}}
           label='PDF da prova'
           type='text'
           variant='outlined'
           //onChange={handleInputChange}
           //value={formData.email}
         />
-        <CategoriesMenu categories={categories} />
-        <DisciplinesMenu disciplines={disciplines} />
+        <CategoriesSelect categories={categories} />
+        <DisciplinesSelect disciplines={disciplines} />
+        {!formData.discipline.name ? '' : <TeachersSelect teachers={teachers} />}
       </Box>
     </>
   );
-}
 
-interface CategoriesMenuProps {
-  categories: Category[];
-}
+  interface CategoriesMenuProps {
+    categories: Category[];
+  }
 
-function CategoriesMenu({ categories }: CategoriesMenuProps) {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  function CategoriesSelect({ categories }: CategoriesMenuProps) {
+    function handleChange({ target }: any) {
+      //
+    }
 
-  return (
-    <div>
-      <Button
-        id='positioned-button'
-        aria-controls={open ? 'positioned-menu' : undefined}
-        aria-haspopup='true'
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
-      >
-        Categorias
-      </Button>
-      <Menu
-        id='positioned-menu'
-        aria-labelledby='positioned-button'
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
-        {categories.map((category) => (
-          <MenuItem 
-            key={category.id} 
-            onClick={handleClose}>
-            {category.name}
-          </MenuItem>
-        ))}
-      </Menu>
-    </div>
-  );
-}
+    function handleSelect(category: Category) {
+      setFormData({
+        ...formData,
+        category: { id: category.id, name: category.name },
+      });
+    }
 
-interface DisciplinesMenuProps {
-  disciplines: Discipline[];
-}
+    return (
+      <Box sx={{ marginX: "auto", marginTop: "25px"}}>
+        <FormControl fullWidth>
+          <InputLabel id='categories-select-label'>Categorias</InputLabel>
+          <Select
+            id='categories-select'
+            labelId='categories-select-label'
+            value={formData.category.name}
+            label='Categoria'
+            onChange={(e) => handleChange(e)}
+          >
+            {categories.map((category) => (
+              <MenuItem
+                key={category.id}
+                value={category.name}
+                onClick={() => handleSelect(category)}
+              >
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+    );
+  }
 
-function DisciplinesMenu({ disciplines }: DisciplinesMenuProps) {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  interface TeachersMenuProps {
+    teachers: Teacher[];
+  }
 
-  return (
-    <div>
-      <Button
-        id='positioned-button'
-        aria-controls={open ? 'positioned-menu' : undefined}
-        aria-haspopup='true'
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
-      >
-        Disciplinas
-      </Button>
-      <Menu
-        id='positioned-menu'
-        aria-labelledby='positioned-button'
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
-        {disciplines.map((discipline) => (
-          <MenuItem 
-            key={discipline.id} 
-            onClick={handleClose}>
-            {discipline.name}
-          </MenuItem>
-        ))}
-      </Menu>
-    </div>
-  );
+  function TeachersSelect({ teachers }: TeachersMenuProps) {
+
+    function handleChange({ target }: any) {
+      //
+    }
+
+    function handleSelect(teacher: Teacher) {
+      setFormData({
+        ...formData,
+        teacher: { id: teacher.id, name: teacher.name },
+      });
+    }
+
+    //console.log(teachers)
+    return (
+      <Box sx={{ marginX: "auto", marginTop: "25px"}}>
+        <FormControl fullWidth>
+          <InputLabel id='teachers-select-label'>Pessoa Instrutura</InputLabel>
+          <Select
+            id='teachers-select'
+            labelId='teachers-select-label'
+            value={formData.teacher.name}
+            label='Pessoa Instrutura'
+            onChange={(e) => handleChange(e)}
+          >
+            {teachers.map((teacher) => (
+              
+              <MenuItem
+                key={teacher.id}
+                value={teacher.name}
+                onClick={() => handleSelect(teacher)}
+              >
+                {teacher.name}
+              </MenuItem>
+            
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+    );
+  }
+
+  interface DisciplinesMenuProps {
+    disciplines: Discipline[];
+  }
+
+  function DisciplinesSelect({ disciplines }: DisciplinesMenuProps) {
+
+    function handleChange({ target }: any) {
+      //
+    }
+
+    function handleSelect(discipline: Discipline) {
+      setFormData({
+        ...formData,
+        discipline: { id: discipline.id, name: discipline.name },
+      });
+    }
+
+    return (
+      <Box sx={{ marginX: "auto", marginTop: "25px"}}>
+        <FormControl fullWidth>
+          <InputLabel id='disciplines-select-label'>Disciplinas</InputLabel>
+          <Select
+            id='disciplines-select'
+            labelId='disciplines-select-label'
+            value={formData.discipline.name}
+            label='Disciplina'
+            onChange={(e) => handleChange(e)}
+          >
+            {disciplines.map((discipline) => (
+              <MenuItem
+                key={discipline.id}
+                value={discipline.name}
+                onClick={() => handleSelect(discipline)}
+              >
+                {discipline.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+    );
+  }
 }
 
 export default Add;
